@@ -46,6 +46,13 @@ dependencies:
   flutter_heatmap_calendar: ^1.0.5
   shared_preferences: ^2.3.3
   rive: ^0.13.20
+  flutter_riverpod: ^2.6.1
+  cloudinary: ^1.2.0
+  cloudinary_public: ^0.23.1
+  image_picker: ^1.1.2
+  google_fonts: ^6.2.1
+  google_sign_in: ^6.2.2
+  font_awesome_flutter: ^10.8.0
 
 dev_dependencies:
   flutter_test:

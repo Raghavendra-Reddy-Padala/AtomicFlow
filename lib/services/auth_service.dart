@@ -1,180 +1,100 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AuthService extends ChangeNotifier {
+final authServiceProvider = Provider<AuthService>((ref) => AuthService());
+
+class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  // Stream of auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  User? _user;
-  bool _isLoading = false;
-  String? _error;
+  // Get current user
+  User? get currentUser => _auth.currentUser;
 
-  User? get user => _user;
-  bool get isLoading => _isLoading;
-  String? get error => _error;
-
-
-
-  AuthService() {
-    _auth.authStateChanges().listen((User? user) {
-      _user = user;
-      notifyListeners();
-    });
-  }
-
-  // Sign Up
-  Future<void> signUp({
+  // Sign up with email and password
+  Future<UserCredential> signUpWithEmail({
     required String email,
     required String password,
   }) async {
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
-
-      final userCredential = await _auth.createUserWithEmailAndPassword(
+      return await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      // Create user document in Firestore
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastLogin': FieldValue.serverTimestamp(),
-      });
-
-      _user = userCredential.user;
     } catch (e) {
-      _error = _getReadableError(e);
-      throw _error!;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      throw _handleAuthException(e);
     }
   }
 
-  // Sign In
-  Future<void> signIn({
+  // Sign in with email and password
+  Future<UserCredential> signInWithEmail({
     required String email,
     required String password,
   }) async {
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
-
-      final userCredential = await _auth.signInWithEmailAndPassword(
+      return await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      // Update last login timestamp
-      await _firestore
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .update({
-        'lastLogin': FieldValue.serverTimestamp(),
-      });
-
-      _user = userCredential.user;
     } catch (e) {
-      _error = _getReadableError(e);
-      throw _error!;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      throw _handleAuthException(e);
     }
   }
 
-  // Sign Out
-  Future<void> signOut() async {
-    try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
+  // // Sign in with Google
+  // Future<UserCredential?> signInWithGoogle() async {
+  //   try {
+  //     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  //     if (googleUser == null) return null;
 
-      await _auth.signOut();
-      _user = null;
-    } catch (e) {
-      _error = _getReadableError(e);
-      throw _error!;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
+  //     final GoogleSignInAuthentication googleAuth = 
+  //         await googleUser.authentication;
+  //     final credential = GoogleAuthProvider.credential(
+  //       accessToken: googleAuth.accessToken,
+  //       idToken: googleAuth.idToken,
+  //     );
 
-  // Reset Password
+  //     return await _auth.signInWithCredential(credential);
+  //   } catch (e) {
+  //     throw _handleAuthException(e);
+  //   }
+  // }
+
+  // // Sign out
+  // Future<void> signOut() async {
+  //   await _googleSignIn.signOut();
+  //   await _auth.signOut();
+  // }
+
+  // Password reset
   Future<void> resetPassword(String email) async {
     try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
-
       await _auth.sendPasswordResetEmail(email: email);
     } catch (e) {
-      _error = _getReadableError(e);
-      throw _error!;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      throw _handleAuthException(e);
     }
   }
 
-  // Update Profile
-  Future<void> updateProfile({
-    String? displayName,
-    String? photoURL,
-  }) async {
-    try {
-      _isLoading = true;
-      _error = null;
-      notifyListeners();
-
-      await _user?.updateDisplayName(displayName);
-      await _user?.updatePhotoURL(photoURL);
-
-      // Update Firestore user document
-      if (_user != null) {
-        await _firestore.collection('users').doc(_user!.uid).update({
-          if (displayName != null) 'displayName': displayName,
-          if (photoURL != null) 'photoURL': photoURL,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-    } catch (e) {
-      _error = _getReadableError(e);
-      throw _error!;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  String _getReadableError(dynamic error) {
-    if (error is FirebaseAuthException) {
-      switch (error.code) {
-        case 'user-not-found':
-          return 'No user found with this email.';
-        case 'wrong-password':
-          return 'Wrong password provided.';
-        case 'email-already-in-use':
-          return 'An account already exists with this email.';
-        case 'invalid-email':
-          return 'Please provide a valid email address.';
+  String _handleAuthException(dynamic e) {
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
         case 'weak-password':
           return 'The password provided is too weak.';
-        case 'operation-not-allowed':
-          return 'This operation is not allowed.';
-        case 'user-disabled':
-          return 'This account has been disabled.';
+        case 'email-already-in-use':
+          return 'An account already exists for that email.';
+        case 'user-not-found':
+          return 'No user found for that email.';
+        case 'wrong-password':
+          return 'Wrong password provided.';
+        case 'invalid-email':
+          return 'The email address is badly formatted.';
         default:
-          return 'An error occurred. Please try again.';
+          return e.message ?? 'An unknown error occurred.';
       }
     }
-    return 'An unexpected error occurred.';
+    return 'An unknown error occurred.';
   }
 }
