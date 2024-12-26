@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_tracker/services/coludinary_services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -49,7 +50,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                             ? FileImage(_imageFile!)
                             : null,
                         child: _imageFile == null
-                            ? const Icon(Icons.person, size: 64)
+                            ? const Icon(FontAwesomeIcons.solidFontAwesome, size: 64)
                             : null,
                       ),
                       Positioned(

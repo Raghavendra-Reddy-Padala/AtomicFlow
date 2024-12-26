@@ -154,135 +154,159 @@ class _HabitListState extends ConsumerState<HabitList> {
 
         final habits = snapshot.data ?? [];
 
-        return Column(
-          children: [
-            // Add Habit Button
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton.icon(
-                onPressed: () => _showHabitDialog(),
-                icon: const Icon(Icons.add),
-                label: const Text('Add New Habit'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom + 80,
+              ),
+            child: Column(
+              children: [
+                // Add Habit Button
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showHabitDialog(),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add New Habit'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            // Habits List
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: habits.length,
-              itemBuilder: (context, index) {
-                final habit = habits[index];
-                final habitColor = Color(
-                  int.parse('0xFF${habit.color.substring(1)}'),
-                );
-
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: ExpansionTile(
-                    title: Text(
-                      habit.title,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
+                // Habits List
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: habits.length,
+                  itemBuilder: (context, index) {
+                    final habit = habits[index];
+                    final habitColor = Color(
+                      int.parse('0xFF${habit.color.substring(1)}'),
+                    );
+            
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                    ),
-                    subtitle: Text(
-                      habit.description ?? '',
-                      style: GoogleFonts.poppins(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => _showHabitDialog(habit),
+                      child: ExpansionTile(
+                        title: Text(
+                          habit.title,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Delete Habit'),
-                                content: const Text(
-                                  'Are you sure you want to delete this habit?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text(
-                                      'Delete',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-
-                            if (confirm == true) {
-                              await ref
-                                  .read(habitServiceProvider)
-                                  .deleteHabit(habit.id);
-                            }
-                          },
+                        subtitle: Text(
+                          habit.description ?? '',
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey[600],
+                          ),
                         ),
-                      ],
-                    ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Today's completion toggle
-                            CheckboxListTile(
-                              title: const Text("Today's Progress"),
-                              value: habit.completionStatus[
-                                  DateTime.now().toIso8601String().split('T')[0]] ??
-                                  false,
-                              onChanged: (value) {
-                                ref
-                                    .read(habitServiceProvider)
-                                    .toggleHabitCompletion(
-                                      habit.id,
-                                      DateTime.now(),
-                                    );
-                              },
-                              activeColor: habitColor,
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _showHabitDialog(habit),
                             ),
-                            const SizedBox(height: 16),
-                            // Habit's heatmap
-                            HabitHeatmap(
-                              habit: habit,
-                              color: habitColor,
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Habit'),
+                                    content: const Text(
+                                      'Are you sure you want to delete this habit?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+            
+                                if (confirm == true) {
+                                  await ref
+                                      .read(habitServiceProvider)
+                                      .deleteHabit(habit.id);
+                                }
+                              },
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                        children: [
+                         // In habit_list.dart, inside the ExpansionTile children
+            // In habit_list.dart, inside the ExpansionTile children
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // Add this
+                children: [
+                  // Today's completion toggle
+                  CheckboxListTile(
+            title: Text(
+              "Today's Progress",
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
-          ],
+            value: habit.completionStatus[
+              DateTime.now().toIso8601String().split('T')[0]
+            ] ?? false,
+            onChanged: (value) {
+              ref.read(habitServiceProvider).toggleHabitCompletion(
+                habit.id,
+                DateTime.now(),
+              );
+            },
+            activeColor: habitColor,
+                  ),
+                  const SizedBox(height: 16),
+                  // Add a title for the heatmap
+                  Text(
+            'Progress History',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Habit's heatmap
+                  SizedBox(
+            height: 240, // Increased height
+            child: HabitHeatmap(
+              habit: habit,
+              color: habitColor,
+            ),
+                  ),
+                ],
+              ),
+            )
+            ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

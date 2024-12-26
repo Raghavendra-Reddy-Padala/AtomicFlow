@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker/firebase_options.dart';
@@ -10,18 +12,23 @@ import 'screens/home_screen.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
-// Add a theme provider
 final themeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+void main() {
+  // Make zone errors fatal during development
+  BindingBase.debugZoneErrorsAreFatal = true;
 
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
+  // Create a single zone for all async operations
+  runZoned(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    
+    runApp(
+      const ProviderScope(
+        child: MyApp(),
+      ),
+    );
+  });
 }
 
 class MyApp extends ConsumerWidget {
@@ -34,6 +41,7 @@ class MyApp extends ConsumerWidget {
 
     // Call createRequiredIndexes()
     firestoreService.createRequiredIndexes();
+    
     return MaterialApp(
       title: 'Habit Tracker',
       theme: AppTheme.lightTheme,
