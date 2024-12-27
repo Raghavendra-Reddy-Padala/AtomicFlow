@@ -53,18 +53,29 @@ class NotesService {
     await _firestoreService.deleteData(path: 'notes/$noteId');
   }
 
-  Stream<List<NoteModel>> getUserNotes() {
+Stream<List<NoteModel>> getUserNotes() {
+  try {
     final userId = _firestoreService.currentUserId;
-    if (userId == null) throw Exception('User not authenticated');
+    
+    if (userId == null) {
+      throw Exception('User not authenticated');
+    }
 
     return _firestoreService.collectionStream(
       path: 'notes',
-      builder: (data, id) => NoteModel.fromMap(data, id),
+      builder: (data, id) {
+        return NoteModel.fromMap(data, id);
+      },
       queryBuilder: (query) => query
           .where('userId', isEqualTo: userId)
           .orderBy('updatedAt', descending: true),
-    );
+    ).handleError((error) {
+      throw error;
+    });
+  } catch (e) {
+    throw e;
   }
+}
 
   Stream<NoteModel?> getNote(String noteId) {
     return _firestoreService.documentStream(

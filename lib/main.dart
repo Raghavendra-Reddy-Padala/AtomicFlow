@@ -15,10 +15,8 @@ import 'theme/app_theme.dart';
 final themeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
 
 void main() {
-  // Make zone errors fatal during development
   BindingBase.debugZoneErrorsAreFatal = true;
 
-  // Create a single zone for all async operations
   runZoned(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -59,7 +57,7 @@ class MyApp extends ConsumerWidget {
             return const HomeScreen();
           }
 
-          return const LoginScreen();
+          return const SignupScreen();
         },
       ),
       routes: {

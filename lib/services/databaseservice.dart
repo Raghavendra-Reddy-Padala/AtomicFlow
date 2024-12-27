@@ -21,7 +21,6 @@ class FirestoreService {
           .get();
     } catch (e) {
       if (e is FirebaseException && e.code == 'failed-precondition') {
-        print("Index for habits query needs to be created.");
       }
     }
 
@@ -33,7 +32,6 @@ class FirestoreService {
           .get();
     } catch (e) {
       if (e is FirebaseException && e.code == 'failed-precondition') {
-        print("Index for notes query needs to be created.");
       }
     }
   }
@@ -58,6 +56,7 @@ class FirestoreService {
     Query Function(Query query)? queryBuilder,
     int Function(T lhs, T rhs)? sort,
   }) {
+    try{
     Query query = _firestore.collection(path);
     if (queryBuilder != null) {
       query = queryBuilder(query);
@@ -71,7 +70,13 @@ class FirestoreService {
         result.sort(sort);
       }
       return result;
+    }).handleError( (error) {
+      throw error;
     });
+  
+  }catch(e){
+    throw e;
+  }
   }
 
   // Generic set document
