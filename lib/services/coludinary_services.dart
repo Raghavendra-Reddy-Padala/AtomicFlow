@@ -1,23 +1,56 @@
-import 'package:cloudinary_public/cloudinary_public.dart';
+import 'dart:typed_data';
+import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
-final cloudinaryServiceProvider = Provider<CloudinaryService>((ref) => CloudinaryService());
+// Define the provider
+final cloudinaryServiceProvider = Provider<CloudinaryService>((ref) {
+  return CloudinaryService();
+});
+
 
 class CloudinaryService {
-  final cloudinary = CloudinaryPublic('your-cloud-name', 'your-upload-preset');
+  final cloudinary = Cloudinary.full(
+    apiKey: "962566458489927", // Replace with your Cloudinary API Key
+    apiSecret: "_MNwZNtNcslZ8xTdurUmqI3a2IA", // Replace with your Cloudinary API Secret
+    cloudName: "dg4k2yqku", // Replace with your Cloudinary Cloud Name
+  );
+  final ImagePicker _picker = ImagePicker();
 
-  Future<String> uploadImage(File imageFile) async {
+  // Method to pick image from gallery or camera
+  Future<Uint8List?> pickImage(ImageSource source) async {
     try {
-      CloudinaryResponse response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          imageFile.path,
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 70,
+      );
+      
+      if (image != null) {
+        return await image.readAsBytes();
+      }
+      return null;
+    } catch (e) {
+      print('Error picking image: $e');
+      return null;
+    }
+  }
+  Future<String> uploadImage(Uint8List imageBytes, ) async {
+    try {
+      final response = await cloudinary.uploadResource(
+        CloudinaryUploadResource(
+          fileBytes: imageBytes,
+          resourceType: CloudinaryResourceType.image,
           folder: 'habit_tracker_profiles',
         ),
       );
-      return response.secureUrl;
+
+      if (response.isSuccessful) {
+        return response.secureUrl!;
+      } else {
+        throw Exception('Upload failed: ${response.error}');
+      }
     } catch (e) {
-      print('Error uploading image: $e');
+      print('Error uploading image to Cloudinary: $e');
       rethrow;
     }
   }

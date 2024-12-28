@@ -279,6 +279,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ),
+                      const SizedBox(height: 24),
+                    // Enhanced Login Link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Dont have an account?',
+                          style: GoogleFonts.poppins(
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/signup');
+                          },
+                          child: Text(
+                            'Sign up',
+                            style: GoogleFonts.poppins(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

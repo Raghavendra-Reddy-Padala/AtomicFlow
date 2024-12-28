@@ -34,7 +34,30 @@ class FirestoreService {
       if (e is FirebaseException && e.code == 'failed-precondition') {
       }
     }
+     try {
+      // New index for pomodoro sessions
+      await _firestore
+          .collection('pomodoro_sessions')
+          .where('userId', isEqualTo: currentUserId)
+          .orderBy('startTime', descending: true)
+          .get();
+    } catch (e) {
+      if (e is FirebaseException && e.code == 'failed-precondition') {
+        print('Need to create index for pomodoro_sessions collection');
+        print(e);
+        // You'll need to create this index in Firebase Console
+        throw Exception('''
+Please create the following index in Firebase Console:
+
+Collection: pomodoro_sessions
+Fields to index:
+- userId (Ascending)
+- startTime (Descending)
+        ''');
+      }
+    }
   }
+  
 
   // Generic document stream
   Stream<T?> documentStream<T>({

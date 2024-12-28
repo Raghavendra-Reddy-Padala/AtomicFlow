@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_tracker/models/user_stats_model.dart';
+import 'package:habit_tracker/services/coludinary_services.dart';
 import 'package:habit_tracker/services/stats_services.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
 
@@ -618,33 +620,85 @@ class ProfileHeader extends ConsumerWidget {
     );
   }
 
-  void _showEditProfileDialog(
-    BuildContext context,
-    UserModel user,
-    WidgetRef ref,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final color = colorScheme.primary;
-    final usernameController = TextEditingController(text: user.username);
-    final descriptionController = TextEditingController(text: user.description);
+ // Add this to your existing import
+// Update the _showEditProfileDialog method in your ProfileHeader class
+void _showEditProfileDialog(
+  BuildContext context,
+  UserModel user,
+  WidgetRef ref,
+) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final color = colorScheme.primary;
+  final usernameController = TextEditingController(text: user.username);
+  final descriptionController = TextEditingController(text: user.description);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      title: Text(
+        'Edit Profile',
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.bold,
+          color: colorScheme.onSurface,
         ),
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        content: Column(
+      ),
+      content: SingleChildScrollView(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Add profile image editing section
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [color, colorScheme.secondary],
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 48,
+                    backgroundColor: colorScheme.surface,
+                    backgroundImage: user.profileImageUrl != null
+                        ? NetworkImage(user.profileImageUrl!)
+                        : null,
+                    child: user.profileImageUrl == null
+                        ? Icon(
+                            Icons.person_rounded,
+                            size: 48,
+                            color: color,
+                          )
+                        : null,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colorScheme.surface,
+                        width: 2,
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      color: colorScheme.onPrimary,
+                      onPressed: () => _showImageSourceDialog(context, ref),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             TextField(
               controller: usernameController,
               style: TextStyle(color: colorScheme.onSurface),
@@ -697,43 +751,120 @@ class ProfileHeader extends ConsumerWidget {
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: colorScheme.onSurfaceVariant,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          style: TextButton.styleFrom(
+            foregroundColor: colorScheme.onSurfaceVariant,
+          ),
+          child: Text(
+            'Cancel',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            await ref.read(userServiceProvider).updateUserProfile(
+                  username: usernameController.text,
+                  description: descriptionController.text,
+                );
+            if (context.mounted) Navigator.pop(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: colorScheme.onPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              await ref.read(userServiceProvider).updateUserProfile(
-                    username: usernameController.text,
-                    description: descriptionController.text,
-                  );
-              if (context.mounted) Navigator.pop(context);
+          child: Text(
+            'Save',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// Add this new method to handle image source selection
+void _showImageSourceDialog(BuildContext context, WidgetRef ref) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final color = colorScheme.primary;
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      title: Text(
+        'Select Image Source',
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.bold,
+          color: colorScheme.onSurface,
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.photo_library, color: color),
+            title: Text(
+              'Gallery',
+              style: GoogleFonts.poppins(color: colorScheme.onSurface),
+            ),
+            onTap: () async {
+              Navigator.pop(context);
+              await _handleImageSelection(ImageSource.gallery, ref, context);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color,
-              foregroundColor: colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+          ),
+          ListTile(
+            leading: Icon(Icons.camera_alt, color: color),
+            title: Text(
+              'Camera',
+              style: GoogleFonts.poppins(color: colorScheme.onSurface),
             ),
-            child: Text(
-              'Save',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-            ),
+            onTap: () async {
+              Navigator.pop(context);
+              await _handleImageSelection(ImageSource.camera, ref, context);
+            },
           ),
         ],
       ),
-    );
+    ),
+  );
+}
+
+Future<void> _handleImageSelection(
+  ImageSource source,
+  WidgetRef ref,
+  BuildContext context,
+) async {
+  final cloudinaryService = ref.read(cloudinaryServiceProvider);
+  final imageBytes = await cloudinaryService.pickImage(source);
+  
+  if (imageBytes != null) {
+    final imageUrl = await cloudinaryService.uploadImage(imageBytes);
+    if (imageUrl != null) {
+      await ref.read(userServiceProvider).updateUserProfile(
+        profileImageUrl: imageUrl,
+      );
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to upload image. Please try again.'),
+          ),
+        );
+      }
+    }
   }
+}
 }

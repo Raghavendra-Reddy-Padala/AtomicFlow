@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_tracker/main.dart';
+import 'package:habit_tracker/screens/login_screen.dart';
 import 'package:habit_tracker/services/databaseservice.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/pomodoro_timer.dart';
@@ -48,7 +50,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildAppbar(ColorScheme colorScheme) {
     return AppBar(
-      title: const Text('Habit Tracker'),
+      title:  Text('Habit Tracker',style: GoogleFonts.poppins(),),
       centerTitle: true,
       actions: [
         IconButton(
@@ -65,6 +67,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     : ThemeMode.dark;
           },
         ),
+        IconButton(
+          icon: const Icon(Icons.logout),
+          hoverColor: Colors.red,
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            );
+          },
+        ),  
       ],
     );
   }
@@ -149,43 +163,129 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _getPageTitle(),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Icons.light_mode
-                            : Icons.dark_mode,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      onPressed: () {
-                        ref.read(themeProvider.notifier).state =
-                            Theme.of(context).brightness == Brightness.dark
-                                ? ThemeMode.light
-                                : ThemeMode.dark;
-                      },
-                    ),
-                  ],
-                ),
-                if (_currentIndex == 0) ...[
-                  const ProfileHeader(),
-                ],
-              ],
+  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            _getPageTitle(),
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onPrimaryContainer,
             ),
           ),
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Icons.light_mode_rounded
+                        : Icons.dark_mode_rounded,
+                    color: colorScheme.primary,
+                    size: 22,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  onPressed: () {
+                    ref.read(themeProvider.notifier).state =
+                        Theme.of(context).brightness == Brightness.dark
+                            ? ThemeMode.light
+                            : ThemeMode.dark;
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.logout_rounded,
+                    color: colorScheme.error,
+                    size: 22,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: colorScheme.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        title: Text(
+                          'Logout',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        content: Text(
+                          'Are you sure you want to logout?',
+                          style: GoogleFonts.poppins(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.poppins(
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.error,
+                              foregroundColor: colorScheme.onError,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Logout',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      if (_currentIndex == 0) ...[
+        const ProfileHeader(),
+      ],
+    ],
+  ),
+)
         ),
         // Page Content
         Expanded(
@@ -229,7 +329,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               title: Text(
                 label,
-                style: TextStyle(
+                
+                style: GoogleFonts.poppins(
                   color: isSelected
                       ? colorScheme.onPrimary
                       : colorScheme.onPrimaryContainer,

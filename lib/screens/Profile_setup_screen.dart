@@ -1,10 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_tracker/services/coludinary_services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../services/user_service.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
@@ -18,7 +17,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  File? _imageFile;
+  Uint8List? _imageFile;
   bool _isLoading = false;
 
   @override
@@ -86,7 +85,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                             radius: 64,
                             backgroundColor: Colors.transparent,
                             backgroundImage: _imageFile != null
-                                ? FileImage(_imageFile!)
+                                ? MemoryImage(_imageFile!)
                                 : null,
                             child: _imageFile == null
                                 ? Icon(
@@ -238,36 +237,43 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         ),
       ),
     );
+  } Future<void> _pickImage() async {
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  
+  if (pickedFile != null) {
+    final bytes = await pickedFile.readAsBytes();
+    setState(() {
+      _imageFile = Uint8List.fromList(bytes); // Use Uint8List
+    });
   }
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _imageFile = File(pickedFile.path));
+}
+
+ Future<void> _handleSave() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _isLoading = true);
+  try {
+    String? imageUrl;
+   imageUrl = await ref.read(cloudinaryServiceProvider).uploadImage(
+  _imageFile!,
+  
+);
+    await ref.read(userServiceProvider).createUserProfile(
+      username: _usernameController.text,
+      description: _descriptionController.text,
+      profileImageUrl: imageUrl,
+    );
+
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/home');
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error saving profile: $e')),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
   }
-
-  Future<void> _handleSave() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-    try {
-      String? imageUrl;
-      if (_imageFile != null) {
-        imageUrl = await ref.read(cloudinaryServiceProvider).uploadImage(_imageFile!);
-      }
-
-      await ref.read(userServiceProvider).createUserProfile(
-        username: _usernameController.text,
-        description: _descriptionController.text,
-        profileImageUrl: imageUrl,
-      );
-
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
+}
 }

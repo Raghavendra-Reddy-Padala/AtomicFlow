@@ -42,6 +42,8 @@ class MyApp extends ConsumerWidget {
     
     return MaterialApp(
       title: 'Habit Tracker',
+      
+      
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,

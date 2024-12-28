@@ -14,7 +14,6 @@ class AuthService {
   // Get current user
   User? get currentUser => _auth.currentUser;
 
-  // Sign up with email and password
   Future<UserCredential> signUpWithEmail({
     required String email,
     required String password,
@@ -76,6 +75,9 @@ class AuthService {
     } catch (e) {
       throw _handleAuthException(e);
     }
+  }
+  Future<void> signOut() async {
+    await _auth.signOut();
   }
 
   String _handleAuthException(dynamic e) {
