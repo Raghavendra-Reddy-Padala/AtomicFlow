@@ -13,7 +13,7 @@ class AppTheme {
     ),
     textTheme: GoogleFonts.poppinsTextTheme(),
     appBarTheme: AppBarTheme(
-      backgroundColor: Colors.pinkAccent,
+      backgroundColor: Colors.purple.shade200,
       foregroundColor: Colors.white,
       elevation: 0,
       titleTextStyle: GoogleFonts.poppins(
