@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -10,11 +11,14 @@ final cloudinaryServiceProvider = Provider<CloudinaryService>((ref) {
 
 
 class CloudinaryService {
-  final cloudinary = Cloudinary.full(
-    apiKey: "962566458489927", // Replace with your Cloudinary API Key
-    apiSecret: "_MNwZNtNcslZ8xTdurUmqI3a2IA", // Replace with your Cloudinary API Secret
-    cloudName: "dg4k2yqku", // Replace with your Cloudinary Cloud Name
-  );
+
+
+final cloudinary = Cloudinary.full(
+apiKey: dotenv.env['CLOUDINARY_API_KEY']!, 
+apiSecret: dotenv.env['CLOUDINARY_API_SECRET']!,
+cloudName: dotenv.env['CLOUDINARY_CLOUD_NAME']!,
+);
+   
   final ImagePicker _picker = ImagePicker();
 
   // Method to pick image from gallery or camera
