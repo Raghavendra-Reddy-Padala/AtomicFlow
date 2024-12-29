@@ -9,7 +9,7 @@ import '../services/user_service.dart';
 import '../models/user_model.dart';
 
 class ProfileHeader extends ConsumerWidget {
-  const ProfileHeader({Key? key}) : super(key: key);
+  const ProfileHeader({super.key});
 
   
 
@@ -852,19 +852,9 @@ Future<void> _handleImageSelection(
   
   if (imageBytes != null) {
     final imageUrl = await cloudinaryService.uploadImage(imageBytes);
-    if (imageUrl != null) {
-      await ref.read(userServiceProvider).updateUserProfile(
-        profileImageUrl: imageUrl,
-      );
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to upload image. Please try again.'),
-          ),
-        );
-      }
+    await ref.read(userServiceProvider).updateUserProfile(
+      profileImageUrl: imageUrl,
+    );
     }
-  }
 }
 }

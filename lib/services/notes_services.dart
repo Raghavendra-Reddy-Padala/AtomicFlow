@@ -73,7 +73,7 @@ Stream<List<NoteModel>> getUserNotes() {
       throw error;
     });
   } catch (e) {
-    throw e;
+    rethrow;
   }
 }
 

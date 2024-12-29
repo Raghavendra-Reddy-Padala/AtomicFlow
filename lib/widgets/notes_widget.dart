@@ -1,10 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker/services/notes_services.dart';
 import '../models/note_model.dart';
 
 class NotesWidget extends ConsumerStatefulWidget {
-  const NotesWidget({Key? key}) : super(key: key);
+  const NotesWidget({super.key});
 
   @override
   ConsumerState<NotesWidget> createState() => _NotesWidgetState();

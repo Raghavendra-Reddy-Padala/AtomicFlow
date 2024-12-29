@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({super.key});
 
   @override
   ConsumerState<SignupScreen> createState() => _SignupScreenState();
@@ -112,7 +112,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       'Create an account to begin',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
-                        color: colorScheme.onBackground.withOpacity(0.7),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -312,7 +312,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         Text(
                           'Already have an account?',
                           style: TextStyle(
-                            color: colorScheme.onBackground.withOpacity(0.7),
+                            color: colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                         TextButton(

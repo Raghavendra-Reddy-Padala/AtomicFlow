@@ -1,16 +1,18 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_tracker/main.dart';
 import 'package:habit_tracker/screens/login_screen.dart';
 import 'package:habit_tracker/services/databaseservice.dart';
+import 'package:habit_tracker/widgets/study_room.dart';
 import '../widgets/habit_list.dart';
 import '../widgets/pomodoro_timer.dart';
 import '../widgets/notes_widget.dart';
 import '../widgets/profile_header.dart';
-
+import 'dart:math' as math;
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -18,13 +20,39 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
-
-  @override
+late ConfettiController _confettiController;
+ @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(firestoreServiceProvider);
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          _confettiController.play();
+        }
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Welcome back! 🎉',
+              style: GoogleFonts.poppins(),
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
   }
 
   @override
@@ -32,22 +60,96 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isDesktop = MediaQuery.of(context).size.width > 768;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      body: SafeArea(
-        child: isDesktop
-            ? _buildDesktopLayout(colorScheme)
-            : _buildMobileLayout(colorScheme),
-      ),
-      bottomNavigationBar: isDesktop ? null : _buildBottomNav(colorScheme),
-      appBar: isDesktop
-          ? PreferredSize(
-              preferredSize: Size.fromHeight(kToolbarHeight),
-              child: _buildAppbar(colorScheme),
-            )
-          : null,
+    return Stack(
+      children: [
+        Scaffold(
+          body: SafeArea(
+            child: isDesktop
+                ? _buildDesktopLayout(colorScheme)
+                : _buildMobileLayout(colorScheme),
+          ),
+          bottomNavigationBar: isDesktop ? null : _buildBottomNav(colorScheme),
+          appBar: isDesktop
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(kToolbarHeight),
+                  child: _buildAppbar(colorScheme),
+                )
+              : null,
+        ),
+        // Top center confetti
+          if (mounted) ...[
+          // Top center confetti with optimized parameters
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: math.pi/2,
+              maxBlastForce: 5, // Reduced force
+              minBlastForce: 2,
+              emissionFrequency: 0.05, // Reduced frequency
+              numberOfParticles: 50, // Reduced particles
+              gravity: 0.05,
+              shouldLoop: false,
+              colors: [
+                colorScheme.primary,
+                colorScheme.secondary,
+                colorScheme.tertiary,
+                Colors.pink,
+              Colors.yellow,
+              Colors.blue,
+              ],
+           
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: 0,
+              emissionFrequency: 0.05,
+              numberOfParticles: 20,
+              maxBlastForce: 100,
+              minBlastForce: 80,
+              gravity: 0.2,
+              shouldLoop: false,
+              colors: [
+                colorScheme.primary,
+                colorScheme.secondary,
+                colorScheme.tertiary,
+                Colors.pink,
+              Colors.yellow,
+              Colors.blue,
+              ],
+          
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: math.pi,
+              emissionFrequency: 0.05,
+              numberOfParticles: 20,
+              maxBlastForce: 100,
+              minBlastForce: 80,
+              gravity: 0.2,
+              shouldLoop: false,
+              colors: [
+                colorScheme.primary,
+                colorScheme.secondary,
+                colorScheme.tertiary,
+                Colors.pink,
+              Colors.yellow,
+              Colors.blue,
+              ],
+           
+            ),
+          ),
+        ],
+      ],
     );
   }
-
+  
   Widget _buildAppbar(ColorScheme colorScheme) {
     return AppBar(
       title:  Text('Habit Tracker',style: GoogleFonts.poppins(),),
@@ -86,12 +188,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
  Widget _buildDesktopLayout(ColorScheme colorScheme) {
   return Row(
     children: [
-      // Left Sidebar
-      Container(
+      SizedBox(
         width: 400,
         child: SingleChildScrollView(
           child: Container(
-            // Remove the constraints here since parent already provides bounds
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withOpacity(0.8),
               borderRadius: const BorderRadius.only(
@@ -120,7 +220,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
-      // Main Content Area
       Expanded(
         child: SingleChildScrollView(
           child: Container(
@@ -128,7 +227,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               minHeight: MediaQuery.of(context).size.height,
             ),
             decoration: BoxDecoration(
-              color: colorScheme.background,
+              color: colorScheme.surface,
               borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(16),
                 bottomRight: Radius.circular(16),
@@ -145,7 +244,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildMobileLayout(ColorScheme colorScheme) {
     return Column(
       children: [
-        // Animated App Bar
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
@@ -302,6 +400,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ('Home', Icons.home_outlined, Icons.home),
       ('Timer', Icons.timer_outlined, Icons.timer),
       ('Notes', Icons.note_outlined, Icons.note),
+        ('Study Room', Icons.groups_outlined, Icons.groups),
     ];
 
     return ListView.builder(
@@ -382,6 +481,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             selectedIcon: Icon(Icons.note),
             label: 'Notes',
           ),
+           NavigationDestination(
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups),
+            label: 'Study Room',
+          ),
         ],
       ),
     );
@@ -396,6 +500,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return const PomodoroTimer();
       case 2:
         return const NotesWidget();
+      case 3:
+      return const StudyRoom();
       default:
         return const SizedBox.shrink();
     }
@@ -409,8 +515,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case 1:
         return 'Focus Timer';
 
+
       case 2:
         return 'Notes';
+
+        case 3:
+        return 'Study Room';
 
       default:
         return '';

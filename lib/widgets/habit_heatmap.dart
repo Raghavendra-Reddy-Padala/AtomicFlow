@@ -7,10 +7,10 @@ class HabitHeatmap extends StatelessWidget {
   final Color color;
 
   const HabitHeatmap({
-    Key? key,
+    super.key,
     required this.habit,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,19 +39,17 @@ class HabitHeatmap extends StatelessWidget {
             },
             size: 35, // Slightly reduced size
             onClick: (value) {
-              if (value != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      habit.completionStatus[value.toIso8601String().split('T')[0]] ?? false
-                          ? 'Completed on ${value.day}-${value.month}-${value.year}'
-                          : 'Not completed on ${value.day}-${value.month}-${value.year}',
-                    ),
-                    duration: const Duration(seconds: 1),
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    habit.completionStatus[value.toIso8601String().split('T')[0]] ?? false
+                        ? 'Completed on ${value.day}-${value.month}-${value.year}'
+                        : 'Not completed on ${value.day}-${value.month}-${value.year}',
                   ),
-                );
-              }
-            },
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+                        },
           ),
         ),
       ),

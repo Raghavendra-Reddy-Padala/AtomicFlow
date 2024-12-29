@@ -34,7 +34,6 @@ cloudName: dotenv.env['CLOUDINARY_CLOUD_NAME']!,
       }
       return null;
     } catch (e) {
-      print('Error picking image: $e');
       return null;
     }
   }
@@ -54,7 +53,6 @@ cloudName: dotenv.env['CLOUDINARY_CLOUD_NAME']!,
         throw Exception('Upload failed: ${response.error}');
       }
     } catch (e) {
-      print('Error uploading image to Cloudinary: $e');
       rethrow;
     }
   }

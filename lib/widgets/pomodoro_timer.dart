@@ -71,7 +71,6 @@ void _completeCurrentSession() {
 void _notifySessionComplete(String sessionId) {
   // Implement the logic to notify about session completion
   // For example, you might want to update the database or trigger some UI changes
-  print('Session $sessionId completed');
 }
 void startTimer() {
   if (!state.isRunning) {
@@ -125,7 +124,7 @@ void startTimer() {
 }
 
 class PomodoroTimer extends ConsumerStatefulWidget {
-  const PomodoroTimer({Key? key}) : super(key: key);
+  const PomodoroTimer({super.key});
 
   @override
   ConsumerState<PomodoroTimer> createState() => _PomodoroTimerState();
@@ -253,7 +252,6 @@ void initState() {
  void _handlePause() {
   ref.read(pomodoroStateProvider.notifier).pauseTimer();
   _animationController.stop();
-  // Remove the _completeSession call from here
 }
 
  void _handleReset() {

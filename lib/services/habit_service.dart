@@ -69,7 +69,7 @@ class HabitService {
   if (habitDoc == null) throw Exception('Habit not found');
 
   // Create a new completion status map if it doesn't exist
-  final newStatus = Map<String, bool>.from(habitDoc.completionStatus ?? {});
+  final newStatus = Map<String, bool>.from(habitDoc.completionStatus);
   newStatus[dateStr] = !(newStatus[dateStr] ?? false);
 
   // Update the habit document
