@@ -57,27 +57,30 @@ class HabitService {
   }
 
   // Toggle habit completion
-  Future<void> toggleHabitCompletion(String habitId, DateTime date) async {
-    final dateStr = date.toIso8601String().split('T')[0];
-    final habitDoc = await _firestoreService.documentStream(
-      path: 'habits/$habitId',
-      builder: (data, id) => HabitModel.fromMap(data, id),
-    ).first;
+ Future<void> toggleHabitCompletion(String habitId, DateTime date) async {
+  final dateStr = date.toIso8601String().split('T')[0];
+  
+  // Get current habit data
+  final habitDoc = await _firestoreService.documentStream(
+    path: 'habits/$habitId',
+    builder: (data, id) => HabitModel.fromMap(data, id),
+  ).first;
 
-    if (habitDoc == null) throw Exception('Habit not found');
+  if (habitDoc == null) throw Exception('Habit not found');
 
-    final newStatus = Map<String, bool>.from(habitDoc.completionStatus);
-    newStatus[dateStr] = !(newStatus[dateStr] ?? false);
+  // Create a new completion status map if it doesn't exist
+  final newStatus = Map<String, bool>.from(habitDoc.completionStatus);
+  newStatus[dateStr] = !(newStatus[dateStr] ?? false);
 
-    await _firestoreService.updateData(
-      path: 'habits/$habitId',
-      data: {
-        'completionStatus': newStatus,
-        'updatedAt': DateTime.now().toIso8601String(),
-      },
-    );
-  }
-
+  // Update the habit document
+  await _firestoreService.updateData(
+    path: 'habits/$habitId',
+    data: {
+      'completionStatus': newStatus,
+      'updatedAt': DateTime.now().toIso8601String(),
+    },
+  );
+}
   // Delete habit
   Future<void> deleteHabit(String habitId) async {
     await _firestoreService.deleteData(path: 'habits/$habitId');

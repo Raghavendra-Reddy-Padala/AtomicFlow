@@ -10,14 +10,14 @@ class HabitBall extends StatefulWidget {
   final bool isCompleted;
 
   const HabitBall({
-    Key? key,
+    super.key,
     required this.habitId,
     required this.name,
     required this.completedDays,
     required this.createdAt,
     required this.onToggle,
     required this.isCompleted,
-  }) : super(key: key);
+  });
 
   @override
   State<HabitBall> createState() => _HabitBallState();

@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
@@ -14,7 +13,6 @@ class AuthService {
   // Get current user
   User? get currentUser => _auth.currentUser;
 
-  // Sign up with email and password
   Future<UserCredential> signUpWithEmail({
     required String email,
     required String password,
@@ -76,6 +74,9 @@ class AuthService {
     } catch (e) {
       throw _handleAuthException(e);
     }
+  }
+  Future<void> signOut() async {
+    await _auth.signOut();
   }
 
   String _handleAuthException(dynamic e) {
