@@ -6,10 +6,11 @@ Transform your daily routines into lasting habits with AtomicFlow, a sleek and i
 
 - **Habit Stacking**: Link new habits to existing routines
 - **Progress Tracking**: Visual habit completion streaks
-- **Smart Reminders**: Custom notifications for habit formation
 - **Habit Analytics**: Track success rates and patterns
 - **Minimalist Design**: Focus on what matters most
-- **Offline Support**: Track habits anytime, anywhere
+- **Pomodoro timer**: A timer with 25 mins work and 5 min break theme
+- **Notes feature**: A noteing feature to write notes
+- **A Study Room**: Study room is the mvp feature used build to bring a competetion in todays world where every indivudial can start their timer and in the end the one with highest time spending would rank first this would build a compitency among users
 
 ## 📱 Experience AtomicFlow
 
